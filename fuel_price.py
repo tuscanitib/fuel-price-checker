@@ -3,17 +3,16 @@ from bs4 import BeautifulSoup
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 import re
 
-# ========== SETTINGS ==========
+# ========== SETTINGS (filled by GitHub Secrets) ==========
 URL = "https://netcong.libertydiscountfuel.com/product/heating-oil/"
-
-# These will come from GitHub Secrets later (or you can hard-code them for testing)
-EMAIL_FROM = os.environ.get("EMAIL_FROM", "tuscanitib@gmail.com")
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "jzmm hhwj such gcwh")
-EMAIL_TO = os.environ.get("EMAIL_TO", "tuscanitib@gmail.com")
-# ==============================
+EMAIL_FROM = os.environ["EMAIL_FROM"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+EMAIL_TO = os.environ["EMAIL_TO"]
+# ========================================================
 
 def get_prices():
     headers = {
@@ -24,18 +23,20 @@ def get_prices():
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    online = soup.select_one("p.online-price")
-    normal = soup.select_one("p.normal-price")
+    online_el = soup.select_one("p.online-price")
+    normal_el = soup.select_one("p.normal-price")
 
-    if not online:
-        raise Exception("Could not find the Online Price")
+    if not online_el:
+        raise Exception("Could not find the Online Price on the page")
 
-    # Clean the price (handles the little raised 9)
-    online_price = float(online.get_text().replace("Online Price:", "").replace("/gallon", "").replace("$", "").strip())
-    
-    normal_price = None
-    if normal:
-        normal_price = float(normal.get_text().replace("Normal Price:", "").replace("/gallon", "").replace("$", "").strip())
+    def clean_price(text):
+        numbers = re.findall(r"[\d.]+", text)
+        if not numbers:
+            raise Exception(f"Could not parse price from: {text}")
+        return float(numbers[0])
+
+    online_price = clean_price(online_el.get_text())
+    normal_price = clean_price(normal_el.get_text()) if normal_el else None
 
     return online_price, normal_price
 
