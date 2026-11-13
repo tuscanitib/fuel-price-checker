@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import smtplib
 from email.mime.text import MIMEText
-from zoneinfo import ZoneInfo
-now = datetime.now(ZoneInfo("America/New_York")).strftime("%A, %B %d, %Y at %I:%M %p")
+from datetime import datetime
 import os
+import re
 
 # ========== SETTINGS ==========
 URL = "https://netcong.libertydiscountfuel.com/product/heating-oil/"
@@ -53,7 +53,7 @@ def send_email(subject, body):
 def main():
     try:
         online, normal = get_prices()
-        now = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
+        now = datetime.now(ZoneInfo("America/New_York")).strftime("%A, %B %d, %Y at %I:%M %p")
 
         message = f"""Good morning!
 
