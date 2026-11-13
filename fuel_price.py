@@ -2,7 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import smtplib
 from email.mime.text import MIMEText
-from datetime import datetime
+from zoneinfo import ZoneInfo
+now = datetime.now(ZoneInfo("America/New_York")).strftime("%A, %B %d, %Y at %I:%M %p")
 import os
 
 # ========== SETTINGS ==========
