@@ -1,0 +1,30 @@
+name: Daily Heating Oil Price
+
+on:
+  schedule:
+    # Runs every day at 12:00 UTC = 7:00 AM Eastern Time
+    - cron: "0 12 * * *"
+  workflow_dispatch:   # Allows you to test it manually
+
+jobs:
+  check-price:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run price checker
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python fuel_price.py
