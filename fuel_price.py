@@ -44,12 +44,14 @@ def send_email(subject, body):
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = EMAIL_FROM
-    msg["To"] = EMAIL_TO
+    msg["To"] = EMAIL_TO   # can be multiple emails separated by commas
 
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(EMAIL_FROM, EMAIL_PASSWORD)
-        server.send_message(msg)
+        # Send to all addresses listed in EMAIL_TO
+        recipients = [email.strip() for email in EMAIL_TO.split(",")]
+        server.sendmail(EMAIL_FROM, recipients, msg.as_string())
 
 def main():
     try:
